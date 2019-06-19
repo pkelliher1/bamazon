@@ -76,8 +76,7 @@ VALUES ("Grass seeds", "Garden", 1, 700);
 
 Here is a screenshot of the CLI displaying this table:
 
-Insert link to products table image here.
-
+![Image of Products table](https://pkelliher1.github.com/bamazon/ProductsTable.png)
 
 ## Step 2.
 

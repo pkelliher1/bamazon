@@ -1,3 +1,4 @@
+// Require mysql, inquirer and console.table
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 require("console.table");
@@ -18,12 +19,14 @@ var connection = mysql.createConnection({
   database: "bamazon_db"
 });
 
+// Establishes connection and loads product data.
 connection.connect(function(err) {
  if (err) throw err;
   console.log("connected as id " + connection.threadId);
   displayProducts();
 });
 
+// Loads products table from a function, queries the products table via a select all SQL statement, then displays the table data in a table format via the console.table.
 function displayProducts() {
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
@@ -32,6 +35,7 @@ function displayProducts() {
   });
 }
 
+// Prompts the customer to enter in the item item_id number utilizing inquirer. If valid item_id value is entered, it will display the next quantity prompt, otherwise it will display an "Item Unavailable!" message.
 function itemSelectionPrompt(itemSelection) {
   inquirer
     .prompt([
@@ -60,7 +64,8 @@ function itemSelectionPrompt(itemSelection) {
       }
     });
   }
-
+ 
+  // Prompts the user to enter in a quantity of the item selected, if the number entered exceeds the quantity available, an "Insufficient quantity!" message is displayed.
   function quantitySelectionPrompt(item) {
     inquirer
       .prompt([
@@ -85,20 +90,28 @@ function itemSelectionPrompt(itemSelection) {
       });
   }
 
+  // This function updates the products table to refelect the new quantity purchased and prints a message reflecting the quantity purchased and what was purchased.
   function itemsBought(item, quantity) {
+    console.log(item, quantity)
+    var newQuantity = item.stock_quantity - quantity;
+
     connection.query(
-      "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?"
-      [quantity, item.item_id],
+      "UPDATE products SET stock_quantity = ? WHERE item_id = ?",
+      [newQuantity, item.item_id],
       function(err, res) {
-        console.log("\nYou have bought " + quantity + "of the following " + item.product_name);
+        if(err){
+          throw err;
+        }
+
+        console.log("\nYou have bought " + quantity + " of the following " + item.product_name);
         displayProducts();
       }
-    )
+    );
   }
 
+  // This is the for loop to check to see if the product, item_id is available.
   function quantityAvail(selectionId, itemSelection) {
     for(var i = 0; i < itemSelection.length; i++) {
-      //var currentItem = itemSelection[i];
       if (itemSelection[i].item_id === selectionId) {
         return itemSelection[i];
         
